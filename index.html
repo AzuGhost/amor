@@ -189,7 +189,12 @@ body{
   border:1px solid rgba(255,255,255,.4);pointer-events:none;
 }
 .frame:focus-within{outline:2px solid var(--gold);outline-offset:4px}
-.frame img{width:100%;height:100%;object-fit:cover;display:block;transition:transform 2.4s cubic-bezier(.2,.7,.2,1) .3s}
+.frame img,.frame video{width:100%;height:100%;object-fit:cover;display:block;transition:transform 2.4s cubic-bezier(.2,.7,.2,1) .3s;background:#1a1438}
+.snd{
+  position:absolute;left:50%;bottom:16px;transform:translateX(-50%);z-index:2;pointer-events:none;white-space:nowrap;
+  font-family:var(--font-ui);font-weight:300;font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:#fff;
+  background:rgba(13,15,34,.55);padding:.5em .95em;border-radius:99px;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
+}
 .sr{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden}
 .empty{
   position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.9rem;
@@ -202,7 +207,7 @@ body{
   color:var(--ink);text-wrap:balance;transition:opacity 1.6s ease .8s,transform 1.6s ease .8s;
 }
 .leaf:not(.on) .frame{opacity:0;transform:translateY(70px) rotate(var(--tilt)) scale(.93)}
-.leaf:not(.on) .frame img{transform:scale(1.22)}
+.leaf:not(.on) .frame img,.leaf:not(.on) .frame video{transform:scale(1.22)}
 .leaf:not(.on) .memory figcaption{opacity:0;transform:translateY(24px)}
 
 @media (min-width:820px){
@@ -253,7 +258,7 @@ body{
   .petal,.rise,.glow,.ripple,.puff svg,.wish svg{animation:none}
   .ripple{opacity:0}
   .eyebrow,.name,.lead,.hint{animation:none}
-  .w,.frame,.frame img,.memory figcaption{transition:none}
+  .w,.frame,.frame img,.frame video,.memory figcaption{transition:none}
   .love{animation:loveFade 2.4s ease-out forwards;transform:translate(-50%,-50%)}
   @keyframes loveFade{0%{opacity:0}20%{opacity:1}75%{opacity:1}100%{opacity:0}}
 }
@@ -296,7 +301,9 @@ img{max-width:100%}
 
 <script>
 /* ===== Contenido: aquí se cambian el nombre, las frases y las fotos =====
-   Para poner una foto, escribe su ruta o dirección en "foto".
+   Para poner una foto o un video, escribe su ruta en "foto" (o en "video"). Ejemplos:
+     { foto: 'fotos/uno.jpg', pie: '...' }     { video: 'fotos/clip.mp4', pie: '...' }
+   Los videos se reproducen solos, sin sonido y en bucle; al tocarlos se activa el sonido.
    Mientras esté vacía, el marco deja elegir una foto desde el dispositivo (solo para probar). */
 const CONFIG = {
   nombre: 'Mi amor',
@@ -420,6 +427,46 @@ function makeLeaf(cls) {
   return body;
 }
 
+/* ---------- Medios: fotos y videos ---------- */
+const VIDEO_RE = /\.(mp4|webm|mov|m4v|ogv)(\?.*)?$/i;
+const isVideo = (u) => VIDEO_RE.test(u);
+let soundOn = false;
+function makeImg(src, alt) {
+  const img = document.createElement('img');
+  img.alt = alt; img.decoding = 'async'; img.src = src;
+  return img;
+}
+function makeVideo(src, poster) {
+  const wrap = document.createDocumentFragment();
+  const v = document.createElement('video');
+  v.src = src; v.loop = true; v.muted = !soundOn; v.defaultMuted = true;
+  v.playsInline = true; v.preload = 'metadata';
+  v.setAttribute('playsinline', ''); v.setAttribute('webkit-playsinline', '');
+  if (poster) v.poster = poster;
+  if (reduce) v.controls = true;
+  const snd = document.createElement('span');
+  snd.className = 'snd'; snd.setAttribute('aria-hidden', 'true');
+  const paint = () => { snd.textContent = v.muted ? '🔇 toca para el sonido' : '🔊 sonido activado'; };
+  paint();
+  v.addEventListener('click', (e) => {
+    if (reduce) return;
+    e.preventDefault();
+    soundOn = v.muted;
+    document.querySelectorAll('.frame video').forEach(o => { o.muted = !soundOn; });
+    document.querySelectorAll('.snd').forEach(o => { o.textContent = soundOn ? '🔊 sonido activado' : '🔇 toca para el sonido'; });
+    const pr = v.play(); if (pr && pr.catch) pr.catch(() => {});
+  });
+  v.addEventListener('volumechange', paint);
+  wrap.append(v, snd);
+  return wrap;
+}
+function syncVideo(lf, want) {
+  const v = lf.querySelector('video');
+  if (!v || reduce) return;
+  if (want) { if (v.paused) { const pr = v.play(); if (pr && pr.catch) pr.catch(() => {}); } }
+  else if (!v.paused) v.pause();
+}
+
 CONFIG.contenido.forEach(item => {
   if (item.frase) {
     const body = makeLeaf('phrase');
@@ -440,22 +487,22 @@ CONFIG.contenido.forEach(item => {
     const label = document.createElement('label');
     label.className = 'frame';
     label.style.setProperty('--tilt', tilts[nMem % tilts.length]);
-    const img = document.createElement('img');
-    img.alt = item.pie || 'Una foto de nosotros'; img.hidden = true; img.decoding = 'async';
-    label.appendChild(img);
-    if (item.foto) {
-      img.src = item.foto; img.hidden = false;
+    const alt = item.pie || 'Un recuerdo de nosotros';
+    const src = item.video || item.foto;
+    if (src) {
+      label.appendChild(isVideo(src) ? makeVideo(src, item.poster) : makeImg(src, alt));
     } else {
       const empty = document.createElement('span');
       empty.className = 'empty';
-      empty.innerHTML = glyph + '<span>Aquí va tu foto</span><span style="opacity:.7">toca para elegirla</span>';
+      empty.innerHTML = glyph + '<span>Aquí va tu foto o video</span><span style="opacity:.7">toca para elegirlo</span>';
       const inp = document.createElement('input');
-      inp.type = 'file'; inp.accept = 'image/*'; inp.className = 'sr';
-      inp.setAttribute('aria-label', 'Elegir una foto');
+      inp.type = 'file'; inp.accept = 'image/*,video/*'; inp.className = 'sr';
+      inp.setAttribute('aria-label', 'Elegir una foto o un video');
       inp.addEventListener('change', e => {
         const f = e.target.files && e.target.files[0];
         if (!f) return;
-        img.src = URL.createObjectURL(f); img.hidden = false; empty.hidden = true;
+        const url = URL.createObjectURL(f);
+        label.replaceChildren(f.type.indexOf('video/') === 0 ? makeVideo(url) : makeImg(url, alt));
       });
       label.append(empty, inp);
     }
@@ -674,6 +721,7 @@ function updateBook(now) {
     const p = flip[i];
     const visible = i >= base && i <= base + 1;
     lf.style.visibility = visible ? 'visible' : 'hidden';
+    syncVideo(lf, visible && p < 0.7 && s > i - 0.55);
     if (!visible) return;
 
     if (reduce) {
