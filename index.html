@@ -1,0 +1,703 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Mi Flor de Loto</title>
+<meta name="description" content="Un pequeño libro de flores para ti.">
+<meta name="theme-color" content="#0d0f22">
+<meta name="color-scheme" content="dark">
+<meta property="og:title" content="Mi Flor de Loto">
+<meta property="og:description" content="Un pequeño libro de flores para ti.">
+<meta property="og:type" content="website">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%AA%B7%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,500;1,600&family=Jost:wght@300;400&family=Pinyon+Script&display=swap" rel="stylesheet">
+<style>
+/* Concepto: un libro de noche al borde del agua. Cada sección es una hoja a pantalla completa que gira
+   desde el lomo al bajar. El papel pasa de azul noche a rosa amanecer página a página. */
+:root{
+  --night:#0d0f22;
+  --dusk:#241c4a;
+  --plum:#52295c;
+  --dawn:#b4527a;
+  --petal:#f8c9da;
+  --petal-deep:#dd6f9c;
+  --gold:#f5dca6;
+  --ink:#fdf3f7;
+  --ink-soft:#dccdea;
+  --font-display:"Cormorant Garamond",Georgia,"Times New Roman",serif;
+  --font-script:"Pinyon Script","Snell Roundhand","Brush Script MT",cursive;
+  --font-ui:"Jost",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --safe-t:env(safe-area-inset-top,0px);
+  --safe-b:env(safe-area-inset-bottom,0px);
+  --H:calc(100vh - var(--safe-t) - var(--safe-b));
+  color-scheme:dark;
+}
+html{
+  background:var(--night);
+  scroll-snap-type:y mandatory;
+  scroll-padding-top:var(--safe-t);
+  scroll-behavior:smooth;
+}
+body{
+  margin:0;background:var(--night);color:var(--ink);
+  font-family:var(--font-display);font-size:18px;line-height:1.5;
+  overflow-x:hidden;-webkit-tap-highlight-color:transparent;
+}
+*{box-sizing:border-box}
+
+/* ---------- Libro ---------- */
+.track{position:relative}
+.stage{
+  position:sticky;top:var(--safe-t);height:var(--H);margin-bottom:calc(var(--H) * -1);
+  overflow:hidden;perspective:2600px;perspective-origin:30% 50%;
+}
+.snap{height:var(--H);scroll-snap-align:start;scroll-snap-stop:always}
+
+.leaf{
+  --t:0;--shade:0;--curl:0;
+  position:absolute;inset:0;overflow:hidden;
+  transform-origin:0 50%;backface-visibility:hidden;-webkit-backface-visibility:hidden;
+  background:var(--dusk);
+  background:linear-gradient(180deg,
+    color-mix(in srgb,var(--plum) calc(var(--t) * 100%),var(--night)) 0%,
+    color-mix(in srgb,var(--dawn) calc(var(--t) * 100%),var(--dusk)) 100%);
+  box-shadow:0 0 70px rgba(0,0,0,.55);
+}
+/* lomo del libro */
+.leaf::before{
+  content:"";position:absolute;inset:0 auto 0 0;width:26px;z-index:2;pointer-events:none;
+  background:linear-gradient(90deg,rgba(0,0,0,.5),rgba(0,0,0,.16) 55%,transparent);
+}
+/* borde de la hoja y brillo al girar */
+.leaf::after{
+  content:"";position:absolute;inset:0;z-index:3;pointer-events:none;
+  background:
+    linear-gradient(90deg,rgba(0,0,0,.4),rgba(0,0,0,0) 32%,rgba(255,255,255,.1) 100%);
+  opacity:var(--curl);
+}
+.shade{position:absolute;inset:0;z-index:4;background:#05060f;opacity:var(--shade);pointer-events:none}
+.page-body{
+  position:relative;z-index:1;height:100%;max-width:1000px;margin-inline:auto;
+  padding:clamp(18px,4vh,40px) clamp(22px,6vw,64px) clamp(44px,7vh,64px);
+  display:flex;flex-direction:column;justify-content:center;
+}
+.folio{
+  position:absolute;z-index:2;left:0;right:0;bottom:clamp(14px,2.6vh,22px);text-align:center;
+  font-family:var(--font-ui);font-weight:300;font-size:.68rem;letter-spacing:.36em;
+  color:var(--ink-soft);opacity:.7;font-variant-numeric:tabular-nums;
+}
+#fx{position:fixed;inset:0;z-index:5;pointer-events:none}
+
+/* ---------- Portada ---------- */
+.hero .page-body{align-items:center;text-align:center}
+.eyebrow{
+  margin:0;font-family:var(--font-ui);font-weight:300;font-size:.72rem;
+  letter-spacing:.46em;text-transform:uppercase;color:var(--petal);
+  animation:fadeUp 1.6s ease .2s both;
+}
+.name{
+  margin:.1em 0 .08em;font-family:var(--font-script);font-weight:400;
+  font-size:clamp(3.2rem,14vw,6rem);line-height:1.08;text-wrap:balance;
+  text-shadow:0 0 44px rgba(248,201,218,.5);animation:fadeUp 2s ease .5s both;
+}
+.lead{
+  margin:0;max-width:24em;font-style:italic;font-size:clamp(1.1rem,4.2vw,1.45rem);
+  color:var(--ink-soft);text-wrap:balance;animation:fadeUp 2s ease .9s both;
+}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+.scene{
+  width:min(100%,640px,calc(var(--H) * 1.05));margin-top:1rem;
+  display:grid;grid-template-columns:.62fr 2.6fr .62fr;align-items:end;column-gap:.15rem;
+}
+.lotus{display:block;width:100%;height:auto;overflow:visible}
+.puff{
+  display:block;width:100%;
+  -webkit-mask-image:linear-gradient(#000 80%,transparent);mask-image:linear-gradient(#000 80%,transparent);
+}
+.puff svg{display:block;width:100%;height:auto;overflow:visible;transform-origin:50% 100%;animation:sway 7s ease-in-out infinite}
+.puff.p-left{margin-bottom:-4%}
+.puff.p-right{width:84%;margin-bottom:-2%}
+.puff.p-right svg{animation-duration:9s;animation-delay:-3s}
+@keyframes sway{0%,100%{transform:rotate(-2.2deg)}50%{transform:rotate(2.6deg)}}
+
+.hint{
+  margin:1.2rem 0 0;font-family:var(--font-ui);font-weight:300;font-size:.74rem;
+  letter-spacing:.28em;text-transform:uppercase;color:var(--ink-soft);line-height:1.9;
+  animation:fadeUp 2s ease 3s both;
+}
+.hint span{display:block}
+
+/* Loto */
+.petal{
+  transform-box:fill-box;transform-origin:50% 100%;
+  stroke:rgba(255,255,255,.3);stroke-width:.8;
+  animation:open 3.6s cubic-bezier(.16,.84,.24,1) var(--d) both;
+}
+@keyframes open{
+  from{transform:rotate(calc(var(--a) * .06)) scale(.42,.6);opacity:0}
+  to{transform:rotate(var(--a)) scale(1);opacity:1}
+}
+.rise{animation:rise 3.4s cubic-bezier(.2,.8,.2,1) both}
+@keyframes rise{from{transform:translateY(64px)}to{transform:none}}
+.glow{animation:glow 6s ease-in-out 3s infinite alternate;transform-box:fill-box;transform-origin:center}
+@keyframes glow{from{opacity:.65;transform:scale(.94)}to{opacity:1;transform:scale(1.06)}}
+.ripple{
+  fill:none;stroke:rgba(255,255,255,.42);stroke-width:1;
+  transform-box:fill-box;transform-origin:center;opacity:0;
+  animation:ring 6.5s ease-out infinite;animation-delay:calc(1.2s + var(--k) * 2.1s);
+}
+@keyframes ring{0%{transform:scale(.15);opacity:.85}100%{transform:scale(1.15);opacity:0}}
+
+/* ---------- Frases ---------- */
+.phrase p{
+  margin:0;max-width:17em;font-style:italic;font-weight:500;
+  font-size:clamp(1.9rem,7.2vw,3.5rem);line-height:1.2;text-wrap:balance;
+  text-shadow:0 2px 30px rgba(13,15,34,.5);
+}
+.phrase.right p{margin-left:auto;text-align:right}
+.phrase.mid p{margin-inline:auto;text-align:center}
+.w{
+  display:inline-block;
+  transition:opacity 1.2s ease calc(var(--i) * 75ms + .25s),
+             transform 1.2s cubic-bezier(.2,.7,.2,1) calc(var(--i) * 75ms + .25s),
+             filter 1.2s ease calc(var(--i) * 75ms + .25s);
+}
+.leaf:not(.on) .w{opacity:0;transform:translateY(.55em);filter:blur(7px)}
+
+/* ---------- Recuerdos ---------- */
+.memory{
+  margin:0;display:grid;gap:1.1rem;justify-items:center;align-content:center;text-align:center;
+}
+.frame{
+  --tilt:0deg;
+  position:relative;display:block;
+  width:min(100%,350px,calc(var(--H) * .56 * .8));aspect-ratio:4/5;
+  border-radius:999px 999px 22px 22px;overflow:hidden;cursor:pointer;
+  background:linear-gradient(160deg,#2b2158,#4a2760 58%,#7a3a70);
+  box-shadow:0 34px 60px -24px rgba(0,0,0,.65),0 0 0 1px rgba(248,201,218,.28),0 0 80px rgba(248,201,218,.14);
+  transform:rotate(var(--tilt));
+  transition:opacity 1.4s ease .3s,transform 1.7s cubic-bezier(.2,.7,.2,1) .3s;
+}
+.frame::after{
+  content:"";position:absolute;inset:9px;border-radius:999px 999px 14px 14px;
+  border:1px solid rgba(255,255,255,.4);pointer-events:none;
+}
+.frame:focus-within{outline:2px solid var(--gold);outline-offset:4px}
+.frame img{width:100%;height:100%;object-fit:cover;display:block;transition:transform 2.4s cubic-bezier(.2,.7,.2,1) .3s}
+.sr{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden}
+.empty{
+  position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.9rem;
+  padding:2rem;text-align:center;font-family:var(--font-ui);font-weight:300;font-size:.74rem;
+  letter-spacing:.24em;text-transform:uppercase;color:var(--petal);
+}
+.empty svg{width:64px;height:auto;opacity:.9}
+.memory figcaption{
+  max-width:17em;font-style:italic;font-size:clamp(1.25rem,4.4vw,1.75rem);line-height:1.3;
+  color:var(--ink);text-wrap:balance;transition:opacity 1.6s ease .8s,transform 1.6s ease .8s;
+}
+.leaf:not(.on) .frame{opacity:0;transform:translateY(70px) rotate(var(--tilt)) scale(.93)}
+.leaf:not(.on) .frame img{transform:scale(1.22)}
+.leaf:not(.on) .memory figcaption{opacity:0;transform:translateY(24px)}
+
+@media (min-width:820px){
+  .memory{grid-template-columns:auto minmax(0,1fr);gap:4.5rem;text-align:left;justify-items:start}
+  .memory.alt{grid-template-columns:minmax(0,1fr) auto;text-align:right;justify-items:end}
+  .memory.alt .frame{order:2}
+  .memory.alt figcaption{order:1}
+}
+
+/* ---------- Final ---------- */
+.finale .page-body{align-items:center;text-align:center}
+.finale h2{
+  margin:0;font-family:var(--font-script);font-weight:400;font-size:clamp(3rem,13vw,6rem);line-height:1.05;text-wrap:balance;
+  text-shadow:0 0 50px rgba(248,201,218,.55);
+}
+.finale p{margin:.5rem 0 0;font-style:italic;font-size:clamp(1.15rem,4.3vw,1.55rem);color:var(--ink-soft)}
+.wish{
+  all:unset;box-sizing:border-box;display:block;cursor:pointer;
+  width:min(60vw,260px,calc(var(--H) * .25));margin-top:1.2rem;
+  -webkit-tap-highlight-color:transparent;border-radius:50%;
+}
+.wish:focus-visible{outline:2px solid var(--gold);outline-offset:6px}
+.wish svg{display:block;width:100%;height:auto;overflow:visible;transform-origin:50% 100%;animation:sway 8s ease-in-out infinite}
+.f{opacity:1;transition:opacity 2.8s ease calc(var(--k) * .22s)}
+.blown .f{opacity:0;transition:opacity .9s ease calc(var(--k) * .1s)}
+
+/* ---------- Frases de amor al tocar ---------- */
+.love{
+  position:fixed;z-index:6;pointer-events:none;white-space:nowrap;
+  font-family:var(--font-script);font-size:clamp(1.55rem,6.2vw,2.2rem);line-height:1.1;color:#fff;
+  text-shadow:0 0 12px rgba(248,201,218,.95),0 0 30px rgba(248,201,218,.55);
+  opacity:0;animation:love 3.2s ease-out forwards;
+}
+@keyframes love{
+  0%{opacity:0;transform:translate(-50%,-20%) scale(.7) rotate(var(--rot))}
+  16%{opacity:1}
+  68%{opacity:1}
+  100%{opacity:0;transform:translate(calc(-50% + var(--dx)),calc(-50% - 96px)) scale(1.06) rotate(var(--rot))}
+}
+
+@media (max-height:560px){
+  .lead{display:none}
+  .hint{display:none}
+  .page-body{padding-block:12px 36px}
+}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .petal,.rise,.glow,.ripple,.puff svg,.wish svg{animation:none}
+  .ripple{opacity:0}
+  .eyebrow,.name,.lead,.hint{animation:none}
+  .w,.frame,.frame img,.memory figcaption{transition:none}
+  .love{animation:loveFade 2.4s ease-out forwards;transform:translate(-50%,-50%)}
+  @keyframes loveFade{0%{opacity:0}20%{opacity:1}75%{opacity:1}100%{opacity:0}}
+}
+
+@supports (height:100svh){:root{--H:calc(100svh - var(--safe-t) - var(--safe-b))}}
+[hidden]{display:none!important}
+img{max-width:100%}
+</style>
+</head>
+<body>
+<div class="track" id="track">
+  <div class="stage" id="stage">
+
+    <section class="leaf hero on" id="heroLeaf">
+      <div class="page-body">
+        <p class="eyebrow">feliz cumpleaños</p>
+        <h1 class="name" id="nombre">Mi amor</h1>
+        <p class="lead" id="intro"></p>
+        <div class="scene">
+          <div class="puff p-left" id="puffL"></div>
+          <div id="lotusBox"></div>
+          <div class="puff p-right" id="puffR"></div>
+        </div>
+        <p class="hint"><span>Toca la pantalla</span><span>Desliza para pasar la página</span></p>
+      </div>
+    </section>
+
+    <section class="leaf finale" id="finalLeaf">
+      <div class="page-body">
+        <h2 id="finalTitulo">Te amo</h2>
+        <p id="finalTexto"></p>
+        <button class="wish" id="wish" type="button" aria-label="Pedir un deseo"></button>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<canvas id="fx" aria-hidden="true"></canvas>
+
+<script>
+/* ===== Contenido: aquí se cambian el nombre, las frases y las fotos =====
+   Para poner una foto, escribe su ruta o dirección en "foto".
+   Mientras esté vacía, el marco deja elegir una foto desde el dispositivo (solo para probar). */
+const CONFIG = {
+  nombre: 'Mi amor',
+  intro: 'Hoy florece un año más de ti, y quise regalarte este rincón.',
+  contenido: [
+    { frase: 'Eres la flor que nació en medio del agua más quieta de mi vida.' },
+    { foto: '', pie: 'El día en que todo empezó a tener color.' },
+    { foto: '', pie: 'Contigo hasta lo más simple se vuelve bonito.' },
+    { frase: 'Lo bonito crece despacio y sin hacer ruido. Así creciste en mí.' },
+    { foto: '', pie: 'Tu sonrisa, mi lugar favorito.' },
+    { foto: '', pie: 'Lo que más me gusta es estar a tu lado.' },
+    { frase: 'Que este nuevo año te llene de flores, de calma y de todo lo que sueñas.' },
+    { foto: '', pie: 'Mil veces más te elegiría.' },
+    { frase: 'Gracias por florecer a mi lado.' },
+    { frase: 'Hoy cumples un año más, y yo tengo un año más para quererte.' }
+  ],
+  final: { titulo: 'Feliz cumpleaños', texto: 'Toca el diente de león, sopla y pide tu deseo. Te amo.' },
+  /* Frases cortas que salen al tocar la pantalla */
+  frasesToque: [
+    'te quiero', 'mi flor de loto', 'eres mi calma', 'siempre tú', 'mi lugar favorito',
+    'te pienso mucho', 'gracias por existir', 'contigo todo', 'mi persona favorita',
+    'me haces feliz', 'mil veces tú', 'eres mi paz', 'te elijo siempre', 'mi amor bonito',
+    'mi todo', 'quédate conmigo', 'feliz cumpleaños', 'pide un deseo', 'hoy brillas más',
+    'felices años, mi amor', 'que todo florezca para ti'
+  ]
+};
+
+const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const $ = (id) => document.getElementById(id);
+const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+
+/* ---------- Loto ---------- */
+function lotusSVG() {
+  const layers = [
+    { a: [-70, -35, 0, 35, 70], L: 150, w: 40, f: 'gA', d: 0.1 },
+    { a: [-52, -17, 17, 52],    L: 140, w: 38, f: 'gB', d: 0.55 },
+    { a: [-28, 0, 28],          L: 122, w: 36, f: 'gC', d: 1.0 },
+    { a: [-9, 9],               L: 84,  w: 26, f: 'gD', d: 1.45 }
+  ];
+  let petals = '';
+  layers.forEach(l => l.a.forEach(a => {
+    const h = l.w, L = l.L;
+    const d = `M0 0C${-h} ${-L*.2} ${-h*1.05} ${-L*.72} 0 ${-L}C${h*1.05} ${-L*.72} ${h} ${-L*.2} 0 0Z`;
+    petals += `<path class="petal" d="${d}" fill="url(#${l.f})" style="--a:${a}deg;--d:${l.d}s"/>`;
+  }));
+  return `
+  <svg class="lotus" viewBox="0 0 400 320" role="img" aria-label="Una flor de loto abriéndose sobre el agua">
+    <defs>
+      <linearGradient id="gA" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#b94a7e"/><stop offset=".5" stop-color="#e57fa7"/><stop offset="1" stop-color="#f8c9da"/></linearGradient>
+      <linearGradient id="gB" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#d8628f"/><stop offset=".55" stop-color="#f09ab9"/><stop offset="1" stop-color="#fde0ea"/></linearGradient>
+      <linearGradient id="gC" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#ee86ab"/><stop offset=".5" stop-color="#f9b9cf"/><stop offset="1" stop-color="#fff1f6"/></linearGradient>
+      <linearGradient id="gD" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#f4a9a0"/><stop offset=".6" stop-color="#fbd6b5"/><stop offset="1" stop-color="#fff3d6"/></linearGradient>
+      <radialGradient id="gGlow"><stop offset="0" stop-color="#f8c9da" stop-opacity=".42"/><stop offset="1" stop-color="#f8c9da" stop-opacity="0"/></radialGradient>
+      <radialGradient id="gWater"><stop offset="0" stop-color="#9fb4ff" stop-opacity=".34"/><stop offset="1" stop-color="#9fb4ff" stop-opacity="0"/></radialGradient>
+      <clipPath id="above"><rect x="-60" y="0" width="520" height="256"/></clipPath>
+    </defs>
+    <circle class="glow" cx="200" cy="175" r="165" fill="url(#gGlow)"/>
+    <ellipse cx="200" cy="258" rx="196" ry="22" fill="url(#gWater)"/>
+    <ellipse cx="78" cy="268" rx="42" ry="8" fill="#2c5a70" opacity=".8"/>
+    <ellipse cx="334" cy="272" rx="30" ry="6" fill="#2c5a70" opacity=".75"/>
+    <ellipse class="ripple" style="--k:0" cx="200" cy="258" rx="170" ry="15"/>
+    <ellipse class="ripple" style="--k:1" cx="200" cy="258" rx="170" ry="15"/>
+    <ellipse class="ripple" style="--k:2" cx="200" cy="258" rx="170" ry="15"/>
+    <g clip-path="url(#above)"><g class="rise"><g transform="translate(200 252)">${petals}</g></g></g>
+  </svg>`;
+}
+
+/* ---------- Diente de león (cabeza blanca) ---------- */
+function puffballSVG() {
+  const cx = 60, cy = 62, N = 56, SECT = 6;
+  const fil = Array.from({ length: SECT }, () => '');
+  const tuft = Array.from({ length: SECT }, () => '');
+  for (let i = 0; i < N; i++) {
+    const ang = (i / N) * Math.PI * 2 + (Math.sin(i * 12.9898) * 0.04);
+    const r = 43 + ((Math.sin(i * 78.233) + 1) / 2) * 7;
+    const ex = cx + Math.cos(ang) * r, ey = cy + Math.sin(ang) * r;
+    const k = Math.floor((i / N) * SECT);
+    fil[k] += `M${cx} ${cy}L${ex.toFixed(1)} ${ey.toFixed(1)}`;
+    for (let j = -2; j <= 2; j++) {
+      const a2 = ang + j * 0.42, bx = ex + Math.cos(a2) * 7, by = ey + Math.sin(a2) * 7;
+      tuft[k] += `M${ex.toFixed(1)} ${ey.toFixed(1)}L${bx.toFixed(1)} ${by.toFixed(1)}`;
+    }
+  }
+  let groups = '';
+  for (let k = 0; k < SECT; k++) {
+    groups += `<g class="f" style="--k:${k}"><path d="${fil[k]}" stroke="rgba(255,255,255,.88)" stroke-width=".7" fill="none"/><path d="${tuft[k]}" stroke="rgba(255,255,255,.78)" stroke-width=".55" stroke-linecap="round" fill="none"/></g>`;
+  }
+  return `
+  <svg viewBox="0 0 120 220" aria-hidden="true">
+    <circle cx="${cx}" cy="${cy}" r="62" fill="rgba(255,255,255,.07)"/>
+    <path d="M60 66C57 120 67 172 60 220" stroke="#b9cbc2" stroke-width="2.2" stroke-linecap="round" fill="none" opacity=".85"/>
+    ${groups}
+    <circle cx="${cx}" cy="${cy}" r="3.4" fill="#d3dcea"/>
+  </svg>`;
+}
+
+/* ---------- Armar el libro ---------- */
+$('nombre').textContent = CONFIG.nombre;
+$('intro').textContent = CONFIG.intro;
+$('lotusBox').innerHTML = lotusSVG();
+$('puffL').innerHTML = puffballSVG();
+$('puffR').innerHTML = puffballSVG();
+$('wish').innerHTML = puffballSVG();
+$('finalTitulo').textContent = CONFIG.final.titulo;
+$('finalTexto').textContent = CONFIG.final.texto;
+
+const glyph = `<svg viewBox="0 0 64 44" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" aria-hidden="true">
+  <path d="M32 40C22 32 20 18 32 4c12 14 10 28 0 36Z"/><path d="M30 40C16 38 8 28 6 16c14 2 22 10 24 24Z"/><path d="M34 40c14-2 22-12 24-24-14 2-22 10-24 24Z"/></svg>`;
+
+const stage = $('stage'), track = $('track'), finalLeaf = $('finalLeaf');
+const tilts = ['-2.2deg', '1.8deg', '-1.2deg', '2.2deg'];
+let nPhrase = 0, nMem = 0;
+
+function makeLeaf(cls) {
+  const leaf = document.createElement('section');
+  leaf.className = 'leaf ' + cls;
+  const body = document.createElement('div');
+  body.className = 'page-body';
+  leaf.appendChild(body);
+  stage.insertBefore(leaf, finalLeaf);
+  return body;
+}
+
+CONFIG.contenido.forEach(item => {
+  if (item.frase) {
+    const body = makeLeaf('phrase');
+    const p = document.createElement('p');
+    p.className = ['', 'right', 'mid'][nPhrase % 3];
+    if (p.className) body.parentElement.classList.add(p.className);
+    item.frase.split(' ').forEach((word, i, arr) => {
+      const s = document.createElement('span');
+      s.className = 'w'; s.style.setProperty('--i', i); s.textContent = word;
+      p.appendChild(s);
+      if (i < arr.length - 1) p.appendChild(document.createTextNode(' '));
+    });
+    body.appendChild(p); nPhrase++;
+  } else {
+    const body = makeLeaf('mem');
+    const fig = document.createElement('figure');
+    fig.className = 'memory' + (nMem % 2 ? ' alt' : '');
+    const label = document.createElement('label');
+    label.className = 'frame';
+    label.style.setProperty('--tilt', tilts[nMem % tilts.length]);
+    const img = document.createElement('img');
+    img.alt = item.pie || 'Una foto de nosotros'; img.hidden = true; img.decoding = 'async';
+    label.appendChild(img);
+    if (item.foto) {
+      img.src = item.foto; img.hidden = false;
+    } else {
+      const empty = document.createElement('span');
+      empty.className = 'empty';
+      empty.innerHTML = glyph + '<span>Aquí va tu foto</span><span style="opacity:.7">toca para elegirla</span>';
+      const inp = document.createElement('input');
+      inp.type = 'file'; inp.accept = 'image/*'; inp.className = 'sr';
+      inp.setAttribute('aria-label', 'Elegir una foto');
+      inp.addEventListener('change', e => {
+        const f = e.target.files && e.target.files[0];
+        if (!f) return;
+        img.src = URL.createObjectURL(f); img.hidden = false; empty.hidden = true;
+      });
+      label.append(empty, inp);
+    }
+    const cap = document.createElement('figcaption');
+    cap.textContent = item.pie || '';
+    fig.append(label, cap); body.appendChild(fig); nMem++;
+  }
+});
+
+const leaves = Array.from(stage.querySelectorAll('.leaf'));
+const N = leaves.length;
+leaves.forEach((lf, i) => {
+  lf.style.setProperty('--t', (N > 1 ? i / (N - 1) : 0).toFixed(3));
+  lf.style.zIndex = String(N - i);
+  const sh = document.createElement('div'); sh.className = 'shade'; sh.setAttribute('aria-hidden', 'true');
+  const fo = document.createElement('div'); fo.className = 'folio'; fo.textContent = (i + 1) + ' / ' + N;
+  lf.append(sh, fo);
+  const sn = document.createElement('div'); sn.className = 'snap'; track.appendChild(sn);
+  if (reduce) lf.classList.add('on');
+});
+const snapEl = track.querySelector('.snap');
+
+/* ---------- Efectos: dientes de león en canvas ---------- */
+const cv = $('fx'), ctx = cv.getContext('2d');
+let W = 0, H = 0, dpr = 1;
+function resize() {
+  dpr = Math.min(window.devicePixelRatio || 1, 2);
+  W = window.innerWidth; H = window.innerHeight;
+  cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+  cv.style.width = W + 'px'; cv.style.height = H + 'px';
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+resize();
+
+const spr = document.createElement('canvas');
+spr.width = spr.height = 96;
+(function () {
+  const c = spr.getContext('2d');
+  c.translate(48, 62);
+  c.shadowColor = 'rgba(255,255,255,.9)'; c.shadowBlur = 5;
+  c.strokeStyle = 'rgba(255,255,255,.9)'; c.fillStyle = '#fff'; c.lineWidth = 1;
+  const n = 13, L = 34;
+  for (let i = 0; i < n; i++) {
+    const t = (-64 + 128 * i / (n - 1)) * Math.PI / 180;
+    const ex = Math.sin(t) * L, ey = -Math.cos(t) * L;
+    c.beginPath(); c.moveTo(0, 0); c.lineTo(ex, ey); c.stroke();
+    c.beginPath(); c.arc(ex, ey, 1.5, 0, 6.283); c.fill();
+  }
+  c.lineWidth = 1.8; c.beginPath(); c.moveTo(0, 0); c.lineTo(0, 17); c.stroke();
+  c.beginPath(); c.arc(0, 0, 2, 0, 6.283); c.fill();
+})();
+
+const ps = [], glows = [];
+const rnd = Math.random;
+
+function addSeed(x, y, vx, vy, o) {
+  o = o || {};
+  ps.push({
+    x, y, vx, vy, life: 0, ph: rnd() * 6.283,
+    s: o.s || (0.35 + rnd() * 0.45),
+    max: o.max || (4.5 + rnd() * 3.5),
+    amb: !!o.amb
+  });
+  if (ps.length > 520) { const k = ps.findIndex(p => !p.amb); if (k >= 0) ps.splice(k, 1); }
+}
+function burst(x, y, n, power) {
+  glows.push({ x, y, t: 0 });
+  const count = reduce ? Math.round(n * 0.4) : n;
+  for (let i = 0; i < count; i++) {
+    const a = rnd() * 6.283, sp = (1.5 + rnd() * 5.5) * (power || 1);
+    addSeed(x, y, Math.cos(a) * sp, Math.sin(a) * sp - 0.6);
+  }
+}
+function drift(side, n) {
+  for (let i = 0; i < n; i++) {
+    const fromLeft = side === 'left';
+    addSeed(fromLeft ? -20 : W + 20, H * (0.25 + rnd() * 0.6),
+      (fromLeft ? 1 : -1) * (0.9 + rnd()), -0.4 - rnd() * 0.6, { max: 9, s: 0.4 + rnd() * 0.4 });
+  }
+}
+
+const ambCount = reduce ? 4 : (W > 800 ? 20 : 12);
+for (let i = 0; i < ambCount; i++) {
+  addSeed(rnd() * W, rnd() * H, 0, 0, { amb: true, s: 0.3 + rnd() * 0.4 });
+}
+
+let last = performance.now();
+function frame(t) {
+  const dt = Math.min((t - last) / 16.67, 3); last = t;
+  ctx.clearRect(0, 0, W, H);
+
+  for (let i = glows.length - 1; i >= 0; i--) {
+    const g = glows[i]; g.t += dt / 60;
+    const k = g.t / 0.7;
+    if (k >= 1) { glows.splice(i, 1); continue; }
+    const R = 20 + k * 110, a = 0.55 * (1 - k) * (1 - k);
+    const gr = ctx.createRadialGradient(g.x, g.y, 0, g.x, g.y, R);
+    gr.addColorStop(0, 'rgba(255,255,255,' + a + ')');
+    gr.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = gr; ctx.beginPath(); ctx.arc(g.x, g.y, R, 0, 6.283); ctx.fill();
+  }
+
+  for (let i = ps.length - 1; i >= 0; i--) {
+    const p = ps[i]; p.life += dt / 60;
+    let a;
+    if (p.amb) {
+      p.x += (0.45 + Math.sin(p.life * 0.7 + p.ph) * 0.25) * dt * p.s * 1.6;
+      p.y += (-0.22 + Math.cos(p.life * 0.9 + p.ph) * 0.18) * dt * p.s * 1.6;
+      a = 0.55 * Math.min(1, p.life / 1.5);
+      if (p.y < -70) { p.y = H + 60; p.x = rnd() * W; }
+      if (p.x > W + 70) { p.x = -60; p.y = rnd() * H; }
+    } else {
+      if (p.life >= p.max) { ps.splice(i, 1); continue; }
+      const f = Math.pow(0.955, dt);
+      p.vx *= f; p.vy *= f; p.vy -= 0.014 * dt; p.vx += 0.01 * dt;
+      p.x += p.vx * dt + Math.sin(p.life * 1.7 + p.ph) * 0.22 * dt;
+      p.y += p.vy * dt;
+      const fade = p.life > p.max * 0.6 ? 1 - (p.life - p.max * 0.6) / (p.max * 0.4) : 1;
+      a = Math.min(1, p.life / 0.15) * fade;
+    }
+    ctx.globalAlpha = Math.max(0, a);
+    ctx.save();
+    ctx.translate(p.x, p.y);
+    ctx.rotate(Math.sin(p.life * 1.3 + p.ph) * 0.4 + p.vx * 0.05);
+    ctx.drawImage(spr, -48 * p.s, -62 * p.s, 96 * p.s, 96 * p.s);
+    ctx.restore();
+  }
+  ctx.globalAlpha = 1;
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+/* ---------- Mini frases de amor al tocar ---------- */
+let loveBag = [];
+function nextLove() {
+  if (!loveBag.length) {
+    loveBag = CONFIG.frasesToque.slice();
+    for (let i = loveBag.length - 1; i > 0; i--) {
+      const j = Math.floor(rnd() * (i + 1));
+      [loveBag[i], loveBag[j]] = [loveBag[j], loveBag[i]];
+    }
+  }
+  return loveBag.pop();
+}
+function lovePhrase(x, y) {
+  const el = document.createElement('span');
+  el.className = 'love';
+  el.textContent = nextLove();
+  const m = Math.min(120, W / 2 - 8);
+  el.style.left = clamp(x, m, W - m) + 'px';
+  el.style.top = Math.max(70, y - 30) + 'px';
+  el.style.setProperty('--rot', (rnd() * 12 - 6).toFixed(1) + 'deg');
+  el.style.setProperty('--dx', (rnd() * 56 - 28).toFixed(0) + 'px');
+  document.body.appendChild(el);
+  const all = document.querySelectorAll('.love');
+  if (all.length > 8) all[0].remove();
+  setTimeout(() => el.remove(), 3300);
+}
+
+/* Toque en cualquier parte: semillas de diente de león y una frase de amor */
+window.addEventListener('pointerup', e => {
+  if (e.target.closest && e.target.closest('.wish')) return;
+  burst(e.clientX, e.clientY, 26, 1);
+  lovePhrase(e.clientX, e.clientY);
+});
+
+/* Los dientes de león de la portada sueltan semillas de vez en cuando */
+function headPos(el) {
+  const r = el.getBoundingClientRect();
+  return { x: r.left + r.width * 0.5, y: r.top + r.height * 0.28, on: r.bottom > 0 && r.top < H };
+}
+if (!reduce) {
+  setInterval(() => {
+    if (leaves[0].style.visibility === 'hidden') return;
+    ['puffL', 'puffR'].forEach(id => {
+      const h = headPos($(id));
+      if (h.on && rnd() < 0.8) addSeed(h.x, h.y, 0.8 + rnd() * 0.8, -0.4 - rnd() * 0.4, { max: 9, s: 0.4 + rnd() * 0.3 });
+    });
+  }, 1400);
+}
+
+/* Deseo: soplar el diente de león del final */
+let wishTimer = 0;
+$('wish').addEventListener('click', () => {
+  const h = headPos($('wish'));
+  burst(h.x, h.y, 90, 1.15);
+  for (let i = 0; i < 3; i++) lovePhrase(h.x + (i - 1) * 95, h.y - 10 - i * 34);
+  $('wish').classList.add('blown');
+  clearTimeout(wishTimer);
+  wishTimer = setTimeout(() => $('wish').classList.remove('blown'), 7000);
+});
+
+/* ---------- Voltear las hojas al bajar ---------- */
+const ease = (p) => p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
+let ticking = false;
+/* Velocidad del giro de la hoja: súbelo para que sea MÁS LENTO (segundos aprox.; 0.6 = ágil, 1.2 = muy pausado) */
+const FLIP_TAU = 0.75;
+let cur = null, lastT = 0;
+function updateBook(now) {
+  ticking = false;
+  const hs = snapEl.offsetHeight || window.innerHeight;
+  const target = window.scrollY / hs;
+  if (cur === null || reduce) cur = target;
+  else {
+    const dt = Math.min(0.05, ((now || performance.now()) - (lastT || (now || performance.now()) - 16)) / 1000);
+    cur += (target - cur) * (1 - Math.exp(-dt / FLIP_TAU));
+    if (Math.abs(target - cur) < 0.0008) cur = target;
+  }
+  lastT = now || performance.now();
+  if (cur !== target) { ticking = true; requestAnimationFrame(updateBook); } else lastT = 0;
+  const s = cur;
+  const flip = leaves.map((_, i) => i < N - 1 ? clamp(s - i, 0, 1) : 0);
+  const base = Math.floor(s + 1e-4);
+
+  leaves.forEach((lf, i) => {
+    const p = flip[i];
+    const visible = i >= base && i <= base + 1;
+    lf.style.visibility = visible ? 'visible' : 'hidden';
+    if (!visible) return;
+
+    if (reduce) {
+      lf.style.transform = 'none';
+      lf.style.opacity = String(1 - p);
+    } else {
+      const ang = ease(p) * 125;
+      lf.style.transform = p > 0 ? 'rotateY(' + (-ang).toFixed(2) + 'deg)' : 'none';
+      lf.style.opacity = p > 0.9 ? String(Math.max(0, 1 - (p - 0.9) * 10)) : '1';
+    }
+    const under = i > 0 ? (1 - flip[i - 1]) * 0.5 : 0;
+    lf.style.setProperty('--shade', Math.min(0.65, p * 0.45 + under).toFixed(3));
+    lf.style.setProperty('--curl', p.toFixed(3));
+
+    if (!lf.classList.contains('on') && s > i - 0.55) {
+      lf.classList.add('on');
+      if (lf.classList.contains('phrase') && !reduce) drift(rnd() < 0.5 ? 'left' : 'right', 5);
+    }
+  });
+}
+function onScroll() { if (!ticking) { ticking = true; requestAnimationFrame(updateBook); } }
+window.addEventListener('scroll', onScroll, { passive: true });
+window.addEventListener('resize', () => { resize(); cur = null; updateBook(); });
+updateBook();
+</script>
+</body>
+</html>
