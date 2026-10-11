@@ -427,6 +427,28 @@ function makeLeaf(cls) {
   return body;
 }
 
+/* ---------- Memoria del dispositivo: conserva las fotos/videos elegidos ---------- */
+const DB = (() => {
+  let dbp = null;
+  const open = () => dbp || (dbp = new Promise((res, rej) => {
+    try {
+      const r = indexedDB.open('flor-de-loto', 1);
+      r.onupgradeneeded = () => r.result.createObjectStore('medios');
+      r.onsuccess = () => res(r.result);
+      r.onerror = () => rej(r.error);
+    } catch (e) { rej(e); }
+  }));
+  const tx = (mode, fn) => open().then(db => new Promise((res, rej) => {
+    const t = db.transaction('medios', mode), out = fn(t.objectStore('medios'));
+    t.oncomplete = () => res(out && out.result);
+    t.onerror = t.onabort = () => rej(t.error);
+  }));
+  return {
+    get: (k) => tx('readonly', st => st.get(k)).catch(() => null),
+    set: (k, v) => tx('readwrite', st => st.put(v, k)).catch(() => {})
+  };
+})();
+
 /* ---------- Medios: fotos y videos ---------- */
 const VIDEO_RE = /\.(mp4|webm|mov|m4v|ogv)(\?.*)?$/i;
 const isVideo = (u) => VIDEO_RE.test(u);
@@ -492,19 +514,30 @@ CONFIG.contenido.forEach(item => {
     if (src) {
       label.appendChild(isVideo(src) ? makeVideo(src, item.poster) : makeImg(src, alt));
     } else {
+      const slot = 'medio-' + nMem;
       const empty = document.createElement('span');
       empty.className = 'empty';
       empty.innerHTML = glyph + '<span>Aquí va tu foto o video</span><span style="opacity:.7">toca para elegirlo</span>';
       const inp = document.createElement('input');
       inp.type = 'file'; inp.accept = 'image/*,video/*'; inp.className = 'sr';
       inp.setAttribute('aria-label', 'Elegir una foto o un video');
+      let lastUrl = null;
+      const show = (blob) => {
+        if (lastUrl) URL.revokeObjectURL(lastUrl);
+        lastUrl = URL.createObjectURL(blob);
+        const media = blob.type.indexOf('video/') === 0 ? makeVideo(lastUrl) : makeImg(lastUrl, alt);
+        label.textContent = '';
+        label.append(media, inp);
+      };
       inp.addEventListener('change', e => {
         const f = e.target.files && e.target.files[0];
         if (!f) return;
-        const url = URL.createObjectURL(f);
-        label.replaceChildren(f.type.indexOf('video/') === 0 ? makeVideo(url) : makeImg(url, alt));
+        show(f);
+        DB.set(slot, f);
+        if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
       });
       label.append(empty, inp);
+      DB.get(slot).then(blob => { if (blob) show(blob); });
     }
     const cap = document.createElement('figcaption');
     cap.textContent = item.pie || '';
