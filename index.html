@@ -285,7 +285,7 @@ img{max-width:100%}
 </head>
 <body>
 
-<audio id="musicaFondo" src="i-wanna-be-yours.mp3" preload="auto" loop></audio>
+<audio id="musicaFondo" src="fotos/i-wanna-be-yours.mp3" preload="auto" autoplay loop></audio>
 <button class="music-toggle" id="musicToggle" type="button" aria-pressed="false">♫ Activar música</button>
 <div class="track" id="track">
   <div class="stage" id="stage">
@@ -714,10 +714,11 @@ function lovePhrase(x, y) {
 }
 
 
-/* Música de fondo: el navegador requiere un toque del usuario para iniciar audio.
-   Coloca i-wanna-be-yours.mp3 junto a index.html en el proyecto de Vercel. */
+/* Música de fondo: intenta reproducirse al entrar. Algunos navegadores bloquean
+   el sonido automático; en ese caso, el primer toque del usuario lo inicia. */
 const musicaFondo = document.getElementById('musicaFondo');
 const musicToggle = document.getElementById('musicToggle');
+
 async function reproducirMusica(){
   try {
     await musicaFondo.play();
@@ -725,17 +726,40 @@ async function reproducirMusica(){
     musicToggle.setAttribute('aria-pressed','true');
   } catch (err) {
     musicToggle.textContent = '♫ Toca para escuchar';
+    musicToggle.setAttribute('aria-pressed','false');
   }
 }
+
+function actualizarBotonMusica(){
+  const sonando = !musicaFondo.paused;
+  musicToggle.textContent = sonando ? '♫ Pausar música' : '♫ Activar música';
+  musicToggle.setAttribute('aria-pressed', String(sonando));
+}
+
 musicToggle.addEventListener('click', async () => {
-  if (musicaFondo.paused) { await reproducirMusica(); }
-  else { musicaFondo.pause(); musicToggle.textContent = '♫ Activar música'; musicToggle.setAttribute('aria-pressed','false'); }
+  if (musicaFondo.paused) {
+    await reproducirMusica();
+  } else {
+    musicaFondo.pause();
+    actualizarBotonMusica();
+  }
 });
-// Primer toque en la página intenta iniciar la canción; el botón permite controlarla.
-window.addEventListener('pointerdown', function iniciarUnaVez(){
+
+musicaFondo.addEventListener('play', actualizarBotonMusica);
+musicaFondo.addEventListener('pause', actualizarBotonMusica);
+
+/* Intento inmediato al cargar la página */
+window.addEventListener('load', () => {
   reproducirMusica();
-  window.removeEventListener('pointerdown', iniciarUnaVez);
-}, { once: true });
+});
+
+/* Si el navegador bloqueó el autoplay, el primer toque en la página lo intenta.
+   No interceptamos el botón musical para evitar que el mismo toque lo pause. */
+window.addEventListener('pointerdown', function iniciarUnaVez(e){
+  if (e.target.closest && e.target.closest('#musicToggle')) return;
+  if (musicaFondo.paused) reproducirMusica();
+  if (!musicaFondo.paused) window.removeEventListener('pointerdown', iniciarUnaVez);
+}, { passive: true });
 
 /* Toque en cualquier parte: semillas de diente de león y una frase de amor */
 window.addEventListener('pointerup', e => {
